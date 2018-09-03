@@ -18,6 +18,7 @@ public class playerController : MonoBehaviour {
     //private 
     private float h, v;
     private bool isCorriendo;
+    private bool isAttacking;
     private Rigidbody2D rb;
     private SpriteRenderer sprite;
     private bool isOnFloor;
@@ -52,6 +53,15 @@ public class playerController : MonoBehaviour {
 
         isOnFloor = Physics2D.Linecast(transform.position, groundCheck.transform.position, 1 << LayerMask.NameToLayer("Floor"));
 
+        //..Seccion de ataque...
+        if(Input.GetButton("Fire1"))
+        {
+            isAttacking = true;
+        }
+        else
+        {
+            isAttacking = false;
+        }
     }
 
     void FixedUpdate()
@@ -63,9 +73,11 @@ public class playerController : MonoBehaviour {
             transform.localScale = new Vector3(Mathf.Sign(h) * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
 
             //...movimiento del personaje caminando eje X...
-            if (!isCorriendo)
+            if (!isCorriendo && !isAttacking)
             {
                 rb.velocity = new Vector2(h * force, rb.velocity.y);
+
+                //..si esta en el suelo y no saltando...
                 if(isOnFloor)
                 {
                     anim.Play("walk");
@@ -73,9 +85,12 @@ public class playerController : MonoBehaviour {
             }
 
             //...movimiento del personaje corriendo...
-            else
+            else if (isCorriendo && !isAttacking)
             {
                 rb.velocity = new Vector2((h * force) + ((h * force) * 0.5f), rb.velocity.y);
+
+                //..si esta en el suelo y no saltando...
+
                 if (isOnFloor)
                 {
                     anim.Play("walk");
@@ -85,7 +100,7 @@ public class playerController : MonoBehaviour {
 
         //...Si no se esta presionando ningun boton...
 
-        if (h == 0 && isOnFloor)
+        if (h == 0 && isOnFloor && !isAttacking)
         {
             rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y);
             anim.Play("idle");
@@ -103,6 +118,13 @@ public class playerController : MonoBehaviour {
         {
             anim.Play("jump");
 
+        }
+
+
+        //...seccion de ataque...
+
+        if(Input.GetButton("Fire1") && isOnFloor){
+            anim.Play("attackLeftRight");
         }
 
     }
